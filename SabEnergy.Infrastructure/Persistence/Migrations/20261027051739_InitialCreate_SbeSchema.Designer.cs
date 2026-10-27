@@ -12,14 +12,15 @@ using SabEnergy.Infrastructure.Persistence;
 namespace SabEnergy.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261027043159_Add_ParameterMaster_And_MeterParameter")]
-    partial class Add_ParameterMaster_And_MeterParameter
+    [Migration("20261027051739_InitialCreate_SbeSchema")]
+    partial class InitialCreate_SbeSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("sbe")
                 .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -127,7 +128,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SerialNo");
 
-                    b.ToTable("tb_sbe_gateways", (string)null);
+                    b.ToTable("tb_sbe_gateways", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.GatewayMake", b =>
@@ -177,7 +178,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GatewayMakeName");
 
-                    b.ToTable("tb_sbe_gateway_makes", (string)null);
+                    b.ToTable("tb_sbe_gateway_makes", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Meter", b =>
@@ -283,7 +284,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SerialNo");
 
-                    b.ToTable("tb_sbe_meters", (string)null);
+                    b.ToTable("tb_sbe_meters", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterMake", b =>
@@ -333,7 +334,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MeterMakeName");
 
-                    b.ToTable("tb_sbe_meter_makes", (string)null);
+                    b.ToTable("tb_sbe_meter_makes", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterParameter", b =>
@@ -399,7 +400,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ParameterMasterId");
 
-                    b.ToTable("tb_sbe_meter_parameters", (string)null);
+                    b.ToTable("tb_sbe_meter_parameters", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterProfile", b =>
@@ -473,7 +474,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProfileVersion");
 
-                    b.ToTable("tb_sbe_meter_profiles", (string)null);
+                    b.ToTable("tb_sbe_meter_profiles", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Model.GatewayModel", b =>
@@ -529,7 +530,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GatewayModelName");
 
-                    b.ToTable("tb_sbe_gateway_models", (string)null);
+                    b.ToTable("tb_sbe_gateway_models", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Model.MeterModel", b =>
@@ -585,7 +586,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MeterModelName");
 
-                    b.ToTable("tb_sbe_meter_models", (string)null);
+                    b.ToTable("tb_sbe_meter_models", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.ParameterMaster", b =>
@@ -653,7 +654,7 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Key");
 
-                    b.ToTable("tb_sbe_parameter_masters", (string)null);
+                    b.ToTable("tb_sbe_parameter_masters", "sbe");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Gateway", b =>
