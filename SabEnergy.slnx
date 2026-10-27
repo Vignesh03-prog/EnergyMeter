@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SabEnergy.API/SabEnergy.API.csproj" />
+  <Project Path="SabEnergy.Application/SabEnergy.Application.csproj" />
+  <Project Path="SabEnergy.Domain/SabEnergy.Domain.csproj" />
+  <Project Path="SabEnergy.Infrastructure/SabEnergy.Infrastructure.csproj" />
+</Solution>
