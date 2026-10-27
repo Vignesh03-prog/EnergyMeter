@@ -29,6 +29,9 @@ public class DIServices
         services.AddScoped<IMeterModelRepository, MeterModelRepository>();
         services.AddScoped<IGatewayRepository, GatewayRepository>();
         services.AddScoped<IMeterRepository, MeterRepository>();
+        services.AddScoped<IMeterProfileRepository, MeterProfileRepository>();
+        services.AddScoped<IParameterMasterRepository, ParameterMasterRepository>();
+        services.AddScoped<IMeterParameterRepository, MeterParameterRepository>();
 
         // Services (Application)
         services.AddScoped<IGatewayMakeService, GatewayMakeService>();
@@ -37,5 +40,8 @@ public class DIServices
         services.AddScoped<IMeterModelService, MeterModelService>();
         services.AddScoped<IGatewayService, GatewayService>();
         services.AddScoped<IMeterService, MeterService>();
+        services.AddScoped<IMeterProfileService, MeterProfileService>();
+        services.AddScoped<IParameterMasterService, ParameterMasterService>();
+        services.AddScoped<IMeterParameterService, MeterParameterService>();
     }
 }

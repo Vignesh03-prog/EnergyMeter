@@ -18,6 +18,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<MeterModel> MeterModels { get; set; }
     public DbSet<Gateway> Gateways { get; set; }
     public DbSet<Meter> Meters { get; set; }
+    public DbSet<MeterProfile> MeterProfiles { get; set; }
+    public DbSet<ParameterMaster> ParameterMasters { get; set; }
+    public DbSet<MeterParameter> MeterParameters { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

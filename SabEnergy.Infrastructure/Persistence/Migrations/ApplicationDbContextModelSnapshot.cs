@@ -333,6 +333,146 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
                     b.ToTable("tb_sbe_meter_makes", (string)null);
                 });
 
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterParameter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("meter_parameter_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Address")
+                        .HasColumnType("integer")
+                        .HasColumnName("address");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("DataType")
+                        .HasColumnType("integer")
+                        .HasColumnName("data_type");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("MeterProfileId")
+                        .HasColumnType("integer")
+                        .HasColumnName("meter_profile_id");
+
+                    b.Property<int>("Multiplier")
+                        .HasColumnType("integer")
+                        .HasColumnName("multiplier");
+
+                    b.Property<int>("ParameterMasterId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parameter_master_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MeterProfileId");
+
+                    b.HasIndex("ParameterMasterId");
+
+                    b.ToTable("tb_sbe_meter_parameters", (string)null);
+                });
+
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("meter_profile_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AddressOffest")
+                        .HasColumnType("integer")
+                        .HasColumnName("address_offset");
+
+                    b.Property<int>("ByteOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("byte_order");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("HoldingRegister")
+                        .HasColumnType("integer")
+                        .HasColumnName("holding_register");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("MakeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("make_id");
+
+                    b.Property<int>("ModelId")
+                        .HasColumnType("integer")
+                        .HasColumnName("model_id");
+
+                    b.Property<string>("ProfileVersion")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("profile_version");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MakeId");
+
+                    b.HasIndex("ModelId");
+
+                    b.HasIndex("ProfileVersion");
+
+                    b.ToTable("tb_sbe_meter_profiles", (string)null);
+                });
+
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Model.GatewayModel", b =>
                 {
                     b.Property<int>("Id")
@@ -445,6 +585,74 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
                     b.ToTable("tb_sbe_meter_models", (string)null);
                 });
 
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.ParameterMaster", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("parameter_master_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("display_name");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("unit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("Key");
+
+                    b.ToTable("tb_sbe_parameter_masters", (string)null);
+                });
+
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Gateway", b =>
                 {
                     b.HasOne("SabEnergy.Domain.Modules.Masters.GatewayMake", "GatewayMake")
@@ -475,6 +683,44 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("MeterModelId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("MeterMake");
+
+                    b.Navigation("MeterModel");
+                });
+
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterParameter", b =>
+                {
+                    b.HasOne("SabEnergy.Domain.Modules.Masters.MeterProfile", "MeterProfile")
+                        .WithMany()
+                        .HasForeignKey("MeterProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SabEnergy.Domain.Modules.Masters.ParameterMaster", "ParameterMaster")
+                        .WithMany()
+                        .HasForeignKey("ParameterMasterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MeterProfile");
+
+                    b.Navigation("ParameterMaster");
+                });
+
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.MeterProfile", b =>
+                {
+                    b.HasOne("SabEnergy.Domain.Modules.Masters.MeterMake", "MeterMake")
+                        .WithMany()
+                        .HasForeignKey("MakeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SabEnergy.Domain.Modules.Masters.Model.MeterModel", "MeterModel")
+                        .WithMany()
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("MeterMake");
 
