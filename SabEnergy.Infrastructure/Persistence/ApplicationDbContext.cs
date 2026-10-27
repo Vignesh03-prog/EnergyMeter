@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<GatewayModel> GatewayModels { get; set; }
     public DbSet<MeterModel> MeterModels { get; set; }
     public DbSet<Gateway> Gateways { get; set; }
+    public DbSet<Channel> Channels { get; set; }
     public DbSet<Meter> Meters { get; set; }
     public DbSet<MeterProfile> MeterProfiles { get; set; }
     public DbSet<ParameterMaster> ParameterMasters { get; set; }
