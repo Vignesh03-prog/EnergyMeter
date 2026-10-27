@@ -31,6 +31,7 @@ bld/
 *.suo
 *.user
 *.userprefs
+appsettings.json
 appsettings.Development.json
 appsettings.Local.json
 *.local.json
@@ -45,3 +46,6 @@ artifacts/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# EF Core Migrations
+**/Migrations/
