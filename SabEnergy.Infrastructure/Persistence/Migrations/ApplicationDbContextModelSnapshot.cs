@@ -22,6 +22,62 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Channel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("channel_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ChannelName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("channel_name");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("GatewayId")
+                        .HasColumnType("integer")
+                        .HasColumnName("gateway_id");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChannelName");
+
+                    b.HasIndex("GatewayId");
+
+                    b.ToTable("tb_sbe_channels", (string)null);
+                });
+
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Gateway", b =>
                 {
                     b.Property<int>("Id")
@@ -651,6 +707,17 @@ namespace SabEnergy.Infrastructure.Persistence.Migrations
                     b.HasIndex("Key");
 
                     b.ToTable("tb_sbe_parameter_masters", (string)null);
+                });
+
+            modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Channel", b =>
+                {
+                    b.HasOne("SabEnergy.Domain.Modules.Masters.Gateway", "Gateway")
+                        .WithMany()
+                        .HasForeignKey("GatewayId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Gateway");
                 });
 
             modelBuilder.Entity("SabEnergy.Domain.Modules.Masters.Gateway", b =>
