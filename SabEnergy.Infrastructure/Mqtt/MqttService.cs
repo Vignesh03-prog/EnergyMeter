@@ -97,9 +97,9 @@ public class MqttService : BackgroundService, IMqttService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var factory = new MqttClientFactory();
-        _mqttClient = factory.CreateMqttClient();
-
-        var clientId = string.IsNullOrWhiteSpace(_settings.ClientId) 
+        _mqttClient = factory.CreateMqttClient(); //Creates the MQTTnet client instance.
+       
+        var clientId = string.IsNullOrWhiteSpace(_settings.ClientId) //Generate Clienet Id to kicked off duplicate connections.
             ? $"SabEnergy_{Guid.NewGuid():N}" 
             : $"{_settings.ClientId}_{Environment.ProcessId}";
 
@@ -120,7 +120,7 @@ public class MqttService : BackgroundService, IMqttService
 
         _options = builder.Build();
 
-        _mqttClient.ApplicationMessageReceivedAsync += async e =>
+        _mqttClient.ApplicationMessageReceivedAsync += async e =>//Event Handler
         {
             try
             {
@@ -130,7 +130,7 @@ public class MqttService : BackgroundService, IMqttService
 
                 _logger.LogInformation("Received MQTT message on Topic: {Topic}", topic);
 
-                // Check if any request is waiting for a response on this exact topic or wildcard match
+               // Find a pending request matching this topic.
                 var topicLower = topic.ToLowerInvariant();
                 foreach (var pair in _pendingResponses)
                 {
@@ -152,7 +152,7 @@ public class MqttService : BackgroundService, IMqttService
             }
         };
 
-        _mqttClient.DisconnectedAsync += async e =>
+        _mqttClient.DisconnectedAsync += async e => //Evenet Handler for Reconnection
         {
             _logger.LogWarning("Disconnected from Mosquitto MQTT broker. Reason: {Reason}. Will retry...", e.Reason);
             while (!stoppingToken.IsCancellationRequested && !_mqttClient.IsConnected)
@@ -189,6 +189,7 @@ public class MqttService : BackgroundService, IMqttService
         await Task.Delay(Timeout.Infinite, stoppingToken);
     }
 
+    //Make Topics to subscribe
     private async Task ResubscribeTopicsAsync(CancellationToken cancellationToken)
     {
         if (_mqttClient == null || !_mqttClient.IsConnected) return;

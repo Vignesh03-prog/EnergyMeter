@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SabEnergy.Application.Modules.Interfaces.Mqtt;
 
@@ -26,8 +27,22 @@ public class TelemetryHandler : ITelemetryHandler
 
             _logger.LogInformation("Extracted IoT Device ID: {DeviceId}, Action: {Action}", deviceId, action);
 
-            // Store the latest live telemetry reading in cache
-            _telemetryStore.Update(deviceId, payload);
+            int? slaveId = null;
+            try
+            {
+                using var doc = JsonDocument.Parse(payload);
+                if (doc.RootElement.TryGetProperty("slave_id", out var slaveElem) && slaveElem.TryGetInt32(out var parsedSlaveId))
+                {
+                    slaveId = parsedSlaveId;
+                }
+            }
+            catch
+            {
+                // If payload is not valid JSON, proceed with null slaveId
+            }
+
+            // Store the latest live telemetry reading in cache (by device and slave_id)
+            _telemetryStore.Update(deviceId, payload, slaveId);
         }
 
         return Task.CompletedTask;

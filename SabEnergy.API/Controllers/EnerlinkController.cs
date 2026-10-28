@@ -23,7 +23,6 @@ public class EnerlinkController : BaseApiController
         _logger = logger;
     }
 
-
     [HttpPost("devices/{deviceId}/cmd")]
     public async Task<IActionResult> SendDeviceCommand(
         string deviceId,
@@ -61,11 +60,6 @@ public class EnerlinkController : BaseApiController
         }
     }
 
-    /// <summary>
-    /// Tests connection with an Enerlink IoT device and returns YES or NO.
-    /// Only takes the command JSON body.
-    /// </summary>
-    /// <param name="command">Connection test payload (profiles & channels)</param>
     [HttpPost("test-connection")]
     public async Task<IActionResult> TestConnection(
         [FromBody] EnerlinkCommandDto command,
@@ -126,17 +120,17 @@ public class EnerlinkController : BaseApiController
         }
     }
 
-    /// <summary>
-    /// Gets the latest real-time live telemetry received from an Enerlink IoT device
-    /// </summary>
-    /// <param name="deviceId">Device ID (defaults to 441BF6D37C80)</param>
+   
     [HttpGet("devices/{deviceId}/telemetry/latest")]
-    public IActionResult GetLatestTelemetry(string deviceId = "441BF6D37C80")
+    public IActionResult GetLatestTelemetry(string deviceId = "441BF6D37C80", [FromQuery] int? slaveId = null)
     {
-        var rawJson = _telemetryStore.GetLatest(deviceId);
+        var rawJson = _telemetryStore.GetLatest(deviceId, slaveId);
         if (string.IsNullOrEmpty(rawJson))
         {
-            return NotFoundResponse($"No telemetry data received yet for device '{deviceId}'.");
+            var msg = slaveId.HasValue
+                ? $"No telemetry data received yet for device '{deviceId}' with slave ID {slaveId.Value}."
+                : $"No telemetry data received yet for device '{deviceId}'.";
+            return NotFoundResponse(msg);
         }
 
         using var doc = JsonDocument.Parse(rawJson);
