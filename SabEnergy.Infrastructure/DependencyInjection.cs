@@ -45,5 +45,21 @@ public class DIServices
         services.AddScoped<IMeterProfileService, MeterProfileService>();
         services.AddScoped<IParameterMasterService, ParameterMasterService>();
         services.AddScoped<IMeterParameterService, MeterParameterService>();
+
+        // MQTT and Telemetry Configuration
+        services.Configure<SabEnergy.Infrastructure.Mqtt.MqttSettings>(
+            configuration.GetSection(SabEnergy.Infrastructure.Mqtt.MqttSettings.SectionName));
+
+        services.AddSingleton<SabEnergy.Application.Modules.Interfaces.Mqtt.ILatestTelemetryStore,
+            SabEnergy.Infrastructure.Mqtt.LatestTelemetryStore>();
+
+        services.AddScoped<SabEnergy.Application.Modules.Interfaces.Mqtt.ITelemetryHandler,
+            SabEnergy.Application.Modules.Services.Mqtt.TelemetryHandler>();
+
+        services.AddSingleton<SabEnergy.Infrastructure.Mqtt.MqttService>();
+        services.AddSingleton<SabEnergy.Application.Modules.Interfaces.Mqtt.IMqttService>(sp =>
+            sp.GetRequiredService<SabEnergy.Infrastructure.Mqtt.MqttService>());
+        services.AddHostedService(sp =>
+            sp.GetRequiredService<SabEnergy.Infrastructure.Mqtt.MqttService>());
     }
 }
