@@ -64,6 +64,7 @@ public class EnerlinkController : BaseApiController
     public async Task<IActionResult> TestConnection(
         [FromBody] EnerlinkCommandDto command,
         CancellationToken cancellationToken = default)
+
     {
         // Resolve Device ID: from payload device_id, or fallback to default
         var targetDeviceId = !string.IsNullOrWhiteSpace(command.DeviceId)
@@ -120,21 +121,93 @@ public class EnerlinkController : BaseApiController
         }
     }
 
-   
+    /// <summary>
+    /// Gets the latest real-time live telemetry received from an Enerlink IoT device.
+    /// Supports dynamic multiple slave IDs query parameter (Add/Remove input fields in Swagger).
+    /// </summary>
+    /// <param name="deviceId">Device ID (defaults to 441BF6D37C80)</param>
+    /// <param name="slaveId">Dynamic list of Modbus slave IDs to retrieve telemetry for</param>
     [HttpGet("devices/{deviceId}/telemetry/latest")]
-    public IActionResult GetLatestTelemetry(string deviceId = "441BF6D37C80", [FromQuery] int? slaveId = null)
+    public IActionResult GetLatestTelemetry(
+        string deviceId = "441BF6D37C80",
+        [FromQuery(Name = "slaveId")] List<int>? slaveId = null)
     {
-        var rawJson = _telemetryStore.GetLatest(deviceId, slaveId);
-        if (string.IsNullOrEmpty(rawJson))
+        if (string.IsNullOrWhiteSpace(deviceId))
         {
-            var msg = slaveId.HasValue
-                ? $"No telemetry data received yet for device '{deviceId}' with slave ID {slaveId.Value}."
-                : $"No telemetry data received yet for device '{deviceId}'.";
-            return NotFoundResponse(msg);
+            return BadRequestResponse("Device ID is required.");
         }
 
-        using var doc = JsonDocument.Parse(rawJson);
-        return OkResponse(doc.RootElement.Clone(), "Latest live telemetry retrieved.");
+        // Case 1: Specific slave IDs requested (via dynamic form fields)
+        if (slaveId != null && slaveId.Count > 0)
+        {
+            var requestedIds = slaveId.Distinct().ToList();
+            var slaveData = _telemetryStore.GetLatestBySlaveIds(deviceId, requestedIds);
+
+            if (slaveData.Count == 0)
+            {
+                return NotFoundResponse($"No telemetry data received yet for device '{deviceId}' with slave ID(s): {string.Join(", ", requestedIds)}.");
+            }
+
+            var results = new List<JsonElement>();
+            foreach (var id in requestedIds)
+            {
+                if (slaveData.TryGetValue(id, out var rawJson) && !string.IsNullOrWhiteSpace(rawJson))
+                {
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(rawJson);
+                        results.Add(doc.RootElement.Clone());
+                    }
+                    catch (JsonException) { }
+                }
+            }
+
+            if (results.Count == 0)
+            {
+                return NotFoundResponse($"No valid telemetry data found for device '{deviceId}' with slave ID(s): {string.Join(", ", requestedIds)}.");
+            }
+
+            // If a single slave ID was requested, return that single object
+            if (requestedIds.Count == 1)
+            {
+                return OkResponse(results.First(), $"Latest live telemetry retrieved for slave ID {requestedIds[0]}.");
+            }
+
+            // If multiple slave IDs were requested, return the list of telemetry objects
+            return OkResponse(results, $"Latest live telemetry retrieved for {results.Count} slave(s).");
+        }
+
+        // Case 2: No specific slaveId requested - return all available slaves or general device telemetry
+        var allSlaves = _telemetryStore.GetAllSlaves(deviceId);
+        if (allSlaves.Count > 0)
+        {
+            var allResults = new List<JsonElement>();
+            foreach (var kvp in allSlaves.OrderBy(x => x.Key))
+            {
+                try
+                {
+                    using var doc = JsonDocument.Parse(kvp.Value);
+                    allResults.Add(doc.RootElement.Clone());
+                }
+                catch (JsonException) { }
+            }
+
+            if (allResults.Count == 1)
+            {
+                return OkResponse(allResults.First(), "Latest live telemetry retrieved.");
+            }
+
+            return OkResponse(allResults, $"Latest live telemetry retrieved for all {allResults.Count} slave(s).");
+        }
+
+        var defaultRawJson = _telemetryStore.GetLatest(deviceId);
+        if (string.IsNullOrEmpty(defaultRawJson))
+        {
+            return NotFoundResponse($"No telemetry data received yet for device '{deviceId}'.");
+        }
+
+        using var defaultDoc = JsonDocument.Parse(defaultRawJson);
+        return OkResponse(defaultDoc.RootElement.Clone(), "Latest live telemetry retrieved.");
     }
 
     /// <summary>
@@ -149,3 +222,4 @@ public class EnerlinkController : BaseApiController
         }, "MQTT Broker status retrieved.");
     }
 }
+

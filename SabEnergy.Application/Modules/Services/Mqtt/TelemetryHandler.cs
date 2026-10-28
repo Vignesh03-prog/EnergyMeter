@@ -27,24 +27,89 @@ public class TelemetryHandler : ITelemetryHandler
 
             _logger.LogInformation("Extracted IoT Device ID: {DeviceId}, Action: {Action}", deviceId, action);
 
-            int? slaveId = null;
             try
             {
                 using var doc = JsonDocument.Parse(payload);
-                if (doc.RootElement.TryGetProperty("slave_id", out var slaveElem) && slaveElem.TryGetInt32(out var parsedSlaveId))
+                var foundSlaves = ExtractSlaves(doc.RootElement);
+
+                if (foundSlaves.Count > 0)
                 {
-                    slaveId = parsedSlaveId;
+                    // Update cache for each specific slave discovered
+                    foreach (var (slaveId, slaveJson) in foundSlaves)
+                    {
+                        _telemetryStore.Update(deviceId, slaveJson, slaveId);
+                    }
+                    // Also maintain the general device latest payload
+                    _telemetryStore.Update(deviceId, payload, null);
+                }
+                else
+                {
+                    _telemetryStore.Update(deviceId, payload, null);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // If payload is not valid JSON, proceed with null slaveId
+                _logger.LogWarning(ex, "Failed to parse JSON telemetry payload for device '{DeviceId}'. Storing as raw device payload.", deviceId);
+                _telemetryStore.Update(deviceId, payload, null);
             }
-
-            // Store the latest live telemetry reading in cache (by device and slave_id)
-            _telemetryStore.Update(deviceId, payload, slaveId);
         }
 
         return Task.CompletedTask;
+    }
+
+    private static List<(int SlaveId, string Json)> ExtractSlaves(JsonElement root)
+    {
+        var list = new List<(int, string)>();
+
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            if (TryGetSlaveId(root, out var sId))
+            {
+                list.Add((sId, root.GetRawText()));
+                return list;
+            }
+
+            // Check if there is an array property such as "meters", "data", "telemetry", etc.
+            foreach (var prop in root.EnumerateObject())
+            {
+                if (prop.Value.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.Object && TryGetSlaveId(item, out var childId))
+                        {
+                            list.Add((childId, item.GetRawText()));
+                        }
+                    }
+                }
+            }
+        }
+        else if (root.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in root.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.Object && TryGetSlaveId(item, out var childId))
+                {
+                    list.Add((childId, item.GetRawText()));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    private static bool TryGetSlaveId(JsonElement element, out int slaveId)
+    {
+        slaveId = 0;
+        if (element.TryGetProperty("slave_id", out var prop) ||
+            element.TryGetProperty("slaveId", out prop) ||
+            element.TryGetProperty("slave", out prop))
+        {
+            if (prop.ValueKind == JsonValueKind.Number && prop.TryGetInt32(out slaveId))
+                return true;
+            if (prop.ValueKind == JsonValueKind.String && int.TryParse(prop.GetString(), out slaveId))
+                return true;
+        }
+        return false;
     }
 }
